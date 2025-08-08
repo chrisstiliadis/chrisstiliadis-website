@@ -1,6 +1,11 @@
+/* Import modern, high‑fashion typefaces from Google Fonts.  
+   Playfair Display lends a luxury, high‑end feel reminiscent of fashion brands like Louis Vuitton, while Inter provides a clean, modern sans-serif for body text. */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;600&display=swap');
+
 body {
     margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
+    /* Use Inter for general copy to keep the site clean and contemporary */
+    font-family: 'Inter', Arial, Helvetica, sans-serif;
     line-height: 1.6;
     background: #fafafa;
     color: #333;
@@ -78,6 +83,11 @@ main {
     margin: 0;
     font-size: 0.95em;
     color: #666;
+}
+
+/* Apply Playfair Display to headings for a luxurious, fashion‑inspired aesthetic */
+h1, h2, h3 {
+    font-family: 'Playfair Display', serif;
 }
 .contact-image {
     max-width: 100%;
