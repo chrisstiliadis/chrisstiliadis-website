@@ -1,6 +1,6 @@
 /* Import modern, high‑fashion typefaces from Google Fonts.  
    Playfair Display lends a luxury, high‑end feel reminiscent of fashion brands like Louis Vuitton, while Inter provides a clean, modern sans-serif for body text. */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:&family=Montserrat:wght@400;600wght@400;600&display=swap');
 
 body {
     margin: 0;
@@ -96,3 +96,12 @@ h1, h2, h3 {
     margin: 20px auto;
     border-radius: 4px;
 }
+
+/* Apply Montserrat to navigation links and buttons for a modern, masculine style */
+button,
+nav.bottom-nav ul li a {
+  font-family: 'Montserrat', sans-serif;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
