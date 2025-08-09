@@ -7,7 +7,7 @@
       z-index: 9999;
       background: #2a2a2a url('boombox_strip.png') center/cover no-repeat;
       box-shadow: 0 -10px 30px rgba(0,0,0,.55);
-      position: relative;
+      
     }
     .boombox-buttons {
       position: absolute;
