@@ -62,5 +62,19 @@ function renderPodcastPage() {
 document.addEventListener('DOMContentLoaded', () => {
     renderCommercialReel();
     renderArtistPage();
+      setActiveNav();
     renderPodcastPage();
 });
+  
+function setActiveNav() {
+  const links = document.querySelectorAll('nav.bottom-nav ul li a');
+  const current = window.location.pathname.split('/').pop() || 'index.html';
+  links.forEach(link => {
+    const href = link.getAttribute('href');
+    if (href === current || (current === 'index.html' && href.includes('index'))) {
+      link.classList.add('active');
+    }
+  });
+}
+
+
