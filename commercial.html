@@ -39,15 +39,8 @@
         <div class="mp3-screw br"></div>
 
         <div class="mp3-screen">
-          <iframe
-            title="Spotify Artist Playlist"
-            style="border:none; overflow:hidden;"
-            loading="lazy"
-            src="https://open.spotify.com/embed/playlist/2tZL2KmBep32gptkMH58Xs?utm_source=generator&theme=0&autoplay=1"
-            width="300"
-            height="152"
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
-          </iframe>
+          <!-- Replace static iframe with container for Spotify IFrame API -->
+          <div id="spotify-player"></div>
         </div>
         <div class="mp3-label">Artist Playlist</div>
       </div>
@@ -56,5 +49,7 @@
 
   <script src="js/data.js"></script>
   <script src="js/scripts.js"></script>
+  <!-- Include the Spotify autoplay script -->
+  <script src="js/spotify-autoplay.js"></script>
 </body>
 </html>
