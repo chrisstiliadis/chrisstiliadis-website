@@ -1,71 +1,102 @@
-.boombox-nav {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 180px;
-  z-index: 9999;
-  /* Use root-level image paths since the assets live at the repository root */
-  background: #2a2a2a url('boombox_strip.png') center/cover no-repeat;
-  box-shadow: 0 -10px 30px rgba(0,0,0,.55);
+:root{
+  --plate:#2a2a2a;
+  --shadow:#0c0c0c;
+  --edge:#6a6a6a;
+  --button:#2b2b2b;
+  --button-top:#3a3a3a;
+  --label:#dfe4ea;
+  --rec:#d8271f;
 }
 
-.boombox-buttons {
-  position: absolute;
-  inset: 0;
-  background: url('strip_normal.png') center bottom/contain no-repeat;
-  pointer-events: none;
+/* whole bar */
+.boombox-nav{
+  position:fixed; left:0; right:0; bottom:0; height:170px; z-index:9999;
+  background:
+    radial-gradient(200% 140% at 50% 120%, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 60%) ,
+    linear-gradient(90deg, rgba(255,255,255,.05) 0 2%, transparent 0 8%, rgba(255,255,255,.04) 0 10%) ,
+    linear-gradient(#2e2e2e,#1f1f1f 18%, #242424 55%, #1a1a1a);
+  box-shadow: 0 -18px 40px rgba(0,0,0,.55), inset 0 2px 0 rgba(255,255,255,.08), inset 0 -2px 0 rgba(0,0,0,.7);
 }
 
-.boombox-buttons.pressed {
-  background-image: url('strip_pressed.png');
+/* subtle edge lip */
+.boombox-surface{
+  position:absolute; inset:10px 14px 58px; border-radius:10px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.15), rgba(255,255,255,0) 30%) ,
+    linear-gradient(180deg, #333 0%, #1b1b1b 100%);
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.12), inset 0 -2px 0 rgba(0,0,0,.7);
 }
 
-.boombox-hitrow {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 32px;
-  height: 96px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  padding: 0 60px;
+/* button row layout */
+.deck-buttons{
+  list-style:none; margin:0; padding:0;
+  position:absolute; left:30px; right:360px; bottom:22px;
+  display:flex; gap:14px;
 }
 
-.boombox-hitrow a {
-  display: block;
-  height: 100%;
-  text-indent: -9999px;
+/* realistic button cap */
+.btn{
+  --w: 210px; --h: 54px;
+  display:block; width:var(--w); height:var(--h); position:relative; border-radius:8px;
+  background:
+    radial-gradient(120% 220% at 50% -60%, rgba(255,255,255,.35) 0 40%, rgba(255,255,255,0) 60%) ,
+    linear-gradient(180deg, var(--button-top), var(--button));
+  box-shadow:
+    0 6px 0 #0b0b0b,
+    inset 0 1px 0 rgba(255,255,255,.25),
+    inset 0 -2px 0 rgba(0,0,0,.65),
+    inset 0 0 0 1px #1a1a1a;
+  transform: translateY(0);
+  transition: transform .06s ease, box-shadow .06s ease, filter .08s ease;
+  isolation:isolate; overflow:hidden;
+}
+.btn::before{
+  content:""; position:absolute; inset:8px; border-radius:6px;
+  background:
+    radial-gradient(60% 60% at 50% 45%, rgba(255,255,255,.08) 0, rgba(255,255,255,0) 60%) ,
+    repeating-linear-gradient(0deg, rgba(255,255,255,.02) 0 1px, rgba(0,0,0,.02) 1px 2px);
+  mix-blend-mode:screen; opacity:.8;
+}
+.btn::after{
+  content:attr(data-label);
+  position:absolute; left:50%; top:-22px; transform:translateX(-50%);
+  font: 700 12px/1 "Arial Narrow", "DIN Condensed", system-ui;
+  letter-spacing:.12em; color:var(--label);
+  text-shadow: 0 1px 0 rgba(0,0,0,.8);
 }
 
-/* mini equalizer (optional) */
-.equalizer-mini {
-  position: absolute;
-  right: 24px;
-  bottom: 60px;
-  width: 44px;
-  height: 44px;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 4px;
-  opacity: .9;
+/* pressed */
+.btn:active,
+.btn.is-pressed{
+  transform: translateY(6px);
+  box-shadow:
+    0 0 0 #0b0b0b,
+    inset 0 0 0 rgba(255,255,255,0),
+    inset 0 2px 0 rgba(0,0,0,.75),
+    inset 0 0 0 1px #0d0d0d;
+  filter: brightness(.95);
 }
 
-.equalizer-mini span {
-  align-self: end;
-  width: 6px;
-  height: 10px;
-  background: #7ef17e;
-  animation: levitate 1s ease-in-out infinite;
+/* mini \u201cscreen\u201d on right */
+.mini-screen{ position:absolute; right:26px; bottom:22px; width:300px; height:98px; }
+.screen-bezel{
+  position:relative; inset:0; width:100%; height:100%; border-radius:10px;
+  background:
+    linear-gradient(180deg, #3b3b3b, #191919);
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.18), inset 0 -2px 0 rgba(0,0,0,.75), 0 8px 24px rgba(0,0,0,.5);
+  padding:10px;
 }
+.spotify{ width:100%; height:100%; border-radius:6px; }
 
-.equalizer-mini span:nth-child(2) { animation-delay: .1s; }
-.equalizer-mini span:nth-child(3) { animation-delay: .2s; }
-.equalizer-mini span:nth-child(4) { animation-delay: .3s; }
-.equalizer-mini span:nth-child(5) { animation-delay: .4s; }
+.vu{ position:absolute; right:10px; top:10px; display:flex; gap:3px; }
+.vu span{ width:3px; height:38px; background:#9efc7a; opacity:.85; animation:vu 600ms ease-in-out infinite alternate; }
+.vu span:nth-child(2){ animation-delay:80ms } .vu span:nth-child(3){ animation-delay:160ms } .vu span:nth-child(4){ animation-delay:240ms }
+@keyframes vu{ from{ transform:scaleY(.2) } to{ transform:scaleY(1) } }
 
-@keyframes levitate {
-  0%, 100% { height: 10px; }
-  50% { height: 34px; }
+/* mobile tweaks */
+@media (max-width: 900px){
+  .btn{ --w: 42vw; }
+  .deck-buttons{ left:18px; right:18px; gap:10px; flex-wrap:wrap; justify-content:center; }
+  .mini-screen{ position:static; margin:10px auto 12px; width:92vw; height:86px; }
+  .boombox-surface{ inset:10px 10px 80px; }
 }
