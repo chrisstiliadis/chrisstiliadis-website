@@ -1,56 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Commercial Reel - Chris Stiliadis</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/custom.css">
-  <!-- Include boombox styles from the repository root -->
-  <link rel="stylesheet" href="boombox.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Commercial Reel - Chris Stiliadis</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/custom.css">
+<link rel="stylesheet" href="boombox_new.css">
 </head>
 <body>
-  <header>
-    <h1>Commercial Reel</h1>
-    <p>Selected commercial projects featuring original compositions, mixes and sound design.</p>
-  </header>
-  <main>
-    <div id="commercial-container"></div>
-  </main>
-  
-  <nav class="boombox-nav">
-  <div class="boombox-buttons"></div>
-  <div class="boombox-hitrow">
-    <a href="commercial.html">Commercial Reel</a>
-    <a href="artist.html">Artist Reel</a>
-    <a href="podcast.html">Podcast Reel</a>
-    <a href="contact.html">Contact</a>
-  </div>
-  <div class="mp3-widget" aria-label="Artist playlist">
-    <div class="mp3-shell">
-      <div class="mp3-screw tl"></div>
-      <div class="mp3-screw tr"></div>
-      <div class="mp3-screw bl"></div>
-      <div class="mp3-screw br"></div>
-      <div class="mp3-screen">
-        <div id="spotify-player"></div>
-      </div>
-      <div class="mp3-label">Artist Playlist</div>
+<header>
+  <h1>Commercial Reel</h1>
+  <p>Selected commercial projects featuring original compositions, mixes and sound design.</p>
+</header>
+<main>
+  <div id="commercial-container"></div>
+</main>
+
+<nav class="boombox-nav">
+  <div class="boombox-surface"></div>
+  <ul class="deck-buttons" aria-label="Site navigation">
+    <li><a class="btn" href="commercial.html" data-label="COMMERCIAL REEL"></a></li>
+    <li><a class="btn" href="artist.html"      data-label="ARTIST REEL"></a></li>
+    <li><a class="btn" href="podcast.html"     data-label="PODCAST REEL"></a></li>
+    <li><a class="btn" href="contact.html"     data-label="CONTACT"></a></li>
+  </ul>
+  <aside class="mini-screen" aria-label="Now Playing">
+    <div class="screen-bezel">
+      <div id="spotify-player"></div>
+      <div class="vu"><span></span><span></span><span></span><span></span></div>
     </div>
-    <div class="equalizer">
-      <div style="--i:0"></div>
-      <div style="--i:1"></div>
-      <div style="--i:2"></div>
-      <div style="--i:3"></div>
-      <div style="--i:4"></div>
-    </div>
-  </div>
+  </aside>
 </nav>
 
-  <script src="js/data.js"></script>
-  <script src="js/scripts.js"></script>
-  <!-- Include the Spotify autoplay script -->
-  <script src="boombox.js"></script>
-  <script src="js/spotify-autoplay.js"></script>
+<script src="js/data.js"></script>
+<script src="js/scripts.js"></script>
+<script src="boombox_new.js"></script>
+<script src="js/spotify-autoplay.js"></script>
 </body>
 </html>
