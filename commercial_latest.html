@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Commercial Reel - Chris Stiliadis</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/custom.css">
+<link rel="stylesheet" href="boombox_new.css">
+</head>
+<body>
+<header>
+  <h1>Commercial Reel</h1>
+  <p>Selected commercial projects featuring original compositions, mixes and sound design.</p>
+</header>
+<main>
+  <div id="commercial-container"></div>
+</main>
+
+<nav class="boombox-nav">
+  <div class="boombox-surface"></div>
+  <ul class="deck-buttons" aria-label="Site navigation">
+    <li><a class="btn" href="commercial.html" data-label="COMMERCIAL REEL"></a></li>
+    <li><a class="btn" href="artist.html"      data-label="ARTIST REEL"></a></li>
+    <li><a class="btn" href="podcast.html"     data-label="PODCAST REEL"></a></li>
+    <li><a class="btn" href="contact.html"     data-label="CONTACT"></a></li>
+  </ul>
+  <aside class="mini-screen" aria-label="Now Playing">
+    <div class="screen-bezel">
+      <div id="spotify-player"></div>
+      <div class="vu"><span></span><span></span><span></span><span></span></div>
+    </div>
+  </aside>
+</nav>
+
+<script src="js/data.js"></script>
+<script src="js/scripts.js"></script>
+<script src="boombox_new.js"></script>
+<script src="js/spotify-autoplay.js"></script>
+</body>
+</html>
