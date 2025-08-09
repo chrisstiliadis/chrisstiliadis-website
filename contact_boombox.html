@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact - Chris Stiliadis</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/custom.css">
+  <link rel="stylesheet" href="css/boombox.css">
+</head>
+<body>
+  <header>
+    <h1>Contact</h1>
+  </header>
+  <main>
+    <p>If you have any questions, inquiries or collaboration requests, feel free to reach out via email.</p>
+    <p>Email: <a href="mailto:cstiliadis@gmail.com">cstiliadis@gmail.com</a></p>
+    <!-- Use hosted image instead of uploading local file -->
+    <img src="https://images.squarespace-cdn.com/content/v1/5854074ee58c62ac8f51bf68/1487264874918-45YWWH2IDQH83UDAMFRT/image-asset.jpeg" class="contact-image" alt="Contact">
+  </main>
+  
+  <nav class="boombox-nav">
+  <div class="boombox-buttons"></div>
+  <div class="boombox-hitrow">
+    <a href="commercial.html">Commercial Reel</a>
+    <a href="artist.html">Artist Reel</a>
+    <a href="podcast.html">Podcast Reel</a>
+    <a href="contact.html">Contact</a>
+  </div>
+  <div class="mp3-widget" aria-label="Artist playlist">
+    <div class="mp3-shell">
+      <div class="mp3-screw tl"></div>
+      <div class="mp3-screw tr"></div>
+      <div class="mp3-screw bl"></div>
+      <div class="mp3-screw br"></div>
+      <div class="mp3-screen">
+        <div id="spotify-player"></div>
+      </div>
+      <div class="mp3-label">Artist Playlist</div>
+    </div>
+    <div class="equalizer">
+      <div style="--i:0"></div>
+      <div style="--i:1"></div>
+      <div style="--i:2"></div>
+      <div style="--i:3"></div>
+      <div style="--i:4"></div>
+    </div>
+  </div>
+</nav>
+
+  <script src="js/data.js"></script>
+  <script src="js/scripts.js"></script>
+  <!-- Include the Spotify autoplay script -->
+  <script src="js/boombox.js"></script>
+  <script src="js/spotify-autoplay.js"></script>
+</body>
+</html>
