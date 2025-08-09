@@ -1,0 +1,119 @@
+/*== Enhanced boombox tactile design with film grain and equalizer ==*/
+nav.bottom-nav {
+  /* dark brushed metal background with subtle film grain overlay */
+  background: linear-gradient(180deg, #555, #2f2f2f), url('../film_grain.png');
+  background-size: cover, auto;
+  background-repeat: no-repeat;
+  background-blend-mode: overlay;
+  border-top: 4px solid #0d0d0d;
+  box-shadow: 0 -4px 10px rgba(0,0,0,0.6);
+  padding: 8px 16px;
+}
+
+nav.bottom-nav ul {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav.bottom-nav ul li {
+  margin: 0 6px;
+}
+
+nav.bottom-nav ul li a {
+  display: block;
+  padding: 12px 22px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #e6e6e6;
+  background: linear-gradient(180deg, #7a7a7a, #424242);
+  border: 1px solid #0e0e0e;
+  border-radius: 8px;
+  box-shadow:
+    inset 2px 2px 4px rgba(255,255,255,0.12),
+    inset -2px -2px 4px rgba(0,0,0,0.6),
+    0 3px 6px rgba(0,0,0,0.6);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+nav.bottom-nav ul li a:hover {
+  background: linear-gradient(180deg, #909090, #565656);
+}
+
+nav.bottom-nav ul li a.active,
+nav.bottom-nav ul li a:active {
+  color: #fff;
+  box-shadow:
+    inset 2px 2px 4px rgba(255,255,255,0.2),
+    inset -2px -2px 4px rgba(0,0,0,0.8),
+    0 4px 8px rgba(0,0,0,0.8);
+}
+
+nav.bottom-nav ul li a.active::after {
+  content: '';
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #7eff7e;
+  box-shadow: 0 0 6px rgba(0,255,0,0.8);
+  margin: 4px auto 0;
+}
+
+/* MP3 widget integrated into nav */
+.mp3-widget {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: absolute;
+  bottom: 8px;
+  right: 16px;
+  height: 60px;
+}
+
+.equalizer {
+  display: flex;
+  align-items: flex-end;
+  height: 24px;
+  gap: 4px;
+}
+
+.equalizer div {
+  width: 4px;
+  height: 100%;
+  background: #88ff88;
+  border-radius: 2px;
+  animation: equalizer 1s infinite ease-in-out;
+  animation-delay: calc(-0.1s * var(--i));
+  transform-origin: bottom;
+}
+
+/* film grain overlay for mp3 shell */
+.mp3-shell {
+  background: linear-gradient(180deg,#d3d9df,#8d9398), url('../film_grain.png');
+  background-blend-mode: overlay;
+}
+
+/* equalizer animation */
+@keyframes equalizer {
+  0% { transform: scaleY(0.2); }
+  25% { transform: scaleY(1); }
+  50% { transform: scaleY(0.4); }
+  75% { transform: scaleY(0.6); }
+  100% { transform: scaleY(0.2); }
+}
+
+/* Hide equalizer on small screens */
+@media (max-width: 700px) {
+  .equalizer {
+    display: none;
+  }
+}
