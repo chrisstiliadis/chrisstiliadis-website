@@ -1,44 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chris Stiliadis</title>
-<link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/custom.css">
-<!-- Use the new boombox CSS for realistic cassette buttons -->
-<link rel="stylesheet" href="boombox_new.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chris Stiliadis</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/custom.css">
+
+  <link rel="stylesheet" href="boombox_new.css">
 </head>
 <body>
-<header class="hero">
-  <!-- Hosted logo image avoids requiring local assets -->
-  <img src="https://images.squarespace-cdn.com/content/v1/5854074ee58c62ac8f51bf68/1484083006704-LG0CV6KB8P70P9GGOE8S/chris_logo.png" alt="Chris Stiliadis Logo">
-  <h1>Chris Stiliadis</h1>
-  <p>Music Producer, Composer &amp; Mix Engineer</p>
-</header>
-<main>
-  <p>Welcome to my personal website. Explore my commercial work, artist collaborations, podcast projects, and feel free to get in touch!</p>
-</main>
+  <div id="site-header"></div>
+  <script src="/nav.js"></script>
 
-<!-- New cassette-style navigation bar -->
-<nav class="boombox-nav">
-  <div class="boombox-surface"></div>
-  <ul class="deck-buttons" aria-label="Site navigation">
-    <li><a class="btn" href="commercial.html" data-label="COMMERCIAL REEL"></a></li>
-    <li><a class="btn" href="artist.html"      data-label="ARTIST REEL"></a></li>
-    <li><a class="btn" href="podcast.html"     data-label="PODCAST REEL"></a></li>
-    <li><a class="btn" href="contact.html"     data-label="CONTACT"></a></li>
-  </ul>
-  <aside class="mini-screen" aria-label="Now Playing">
-    <div class="screen-bezel">
-      <div id="spotify-player"></div>
-      <div class="vu"><span></span><span></span><span></span><span></span></div>
-    </div>
-  </aside>
-</nav>
+  <header class="hero">
+    <!-- Hosted logo image avoids requiring local assets -->
+    <img src="https://images.squarespace-cdn.com/content/v1/5854074ee58c02ac8f51bf68/1484083806704-L60CV6KB8B7P0P9GGOE8S/chris_logo.png" alt="Chris Stiliadis Logo">
+    <h3>Chris Stiliadis</h3>
+    <p>Music Producer, Composer &amp; Mix Engineer</p>
+  </header>
 
-<!-- Load scripts -->
-<script src="boombox_new.js"></script>
-<script src="js/spotify-autoplay.js"></script>
+  <main>
+    <p>Welcome to my personal website. Explore my commercial work, artist collaborations, podcast projects, and feel free to get in touch!</p>
+  </main>
+
+  <!-- Load scripts -->
+  <script src="js/spotify-autoplay.js"></script>
 </body>
 </html>
