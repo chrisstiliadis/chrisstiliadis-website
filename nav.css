@@ -1,0 +1,28 @@
+:root{
+  --bg:#f7f7f5;
+  --ink:#111;
+  --muted:#6b6b6b;
+  --rule:#e5e5e2;
+  --link:#111;
+  --link-hover:#444;
+  --max:860px;
+}
+/* Layout */
+.cs-wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 0; display:flex; gap:16px; align-items:flex-start;}
+.cs-rule{border:0; border-top:1px solid var(--rule); margin:18px auto 22px; max-width:var(--max);}
+
+/* Logo */
+.cs-logo{width:140px; height:64px; object-fit:contain; display:block;}
+@media (min-width:780px){ .cs-logo{width:160px; height:72px} }
+.cs-logo-link{display:block;}
+
+/* Nav */
+.cs-nav{margin-top:6px}
+.cs-nav-list{list-style:none; padding:0; margin:0}
+.cs-nav-list li{margin:0 0 10px}
+.cs-nav-list a{display:inline-block; padding:6px 2px; color:var(--link); text-decoration:none; border-bottom:1px solid transparent}
+.cs-nav-list a:hover{border-bottom-color:var(--ink)}
+.cs-active{border-bottom-color:var(--ink) !important;}
+
+/* Optional body base (you likely already have this) */
+body{background:var(--bg); color:var(--ink); font:16px/1.5 -apple-system,BlinkMacSystemFont,BlinkMacSystemFont,Segoe UI,Inter,Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased;}
