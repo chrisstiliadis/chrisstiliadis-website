@@ -65,28 +65,37 @@
         box-shadow: var(--shadow);
       }
 
-      /*
-        Labels appear above each mini equalizer bar. They are hidden by
-        default and fade in when the user hovers over a bar, producing a
-        smooth cross‑fade when moving between bars.
-      */
-      #mini-eq .bar__label {
-        position: absolute;
-        bottom: calc(100% + 4px);
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 0.55rem;
-        letter-spacing: 0.04em;
-        color: #fff;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        white-space: nowrap;
-        pointer-events: none;
-      }
+           /*
+             Mini navigation title styling
 
-      #mini-eq .bar:hover .bar__label {
-        opacity: 1;
-      }
+             A small title sits above the mini equalizer navigation.  It
+             cross‑fades between the names of the tabs as the user hovers
+             over each bar.  Two layered elements are used to achieve the
+             fade effect.
+           */
+           #mini-title {
+             position: fixed;
+             bottom: calc(20px + var(--eq-height) + 8px);
+             left: 20px;
+             height: 18px;
+             min-width: 60px;
+             z-index: 1001;
+             pointer-events: none;
+           }
+           #mini-title .mini-layer {
+             position: absolute;
+             inset: 0;
+             display: grid;
+             place-items: center;
+             font-size: 0.55rem;
+             letter-spacing: 0.04em;
+             color: #fff;
+             opacity: 0;
+             transition: opacity 0.3s ease;
+           }
+           #mini-title .mini-layer.show {
+             opacity: 1;
+           }
       @keyframes mini-updown {
         0%, 100% {
           height: 30%;
@@ -135,6 +144,33 @@
         const miniEq = document.createElement('div');
         miniEq.id = 'mini-eq';
         document.body.appendChild(miniEq);
+
+        // Create a mini title container for cross‑fading tab names
+        const miniTitle = document.createElement('div');
+        miniTitle.id = 'mini-title';
+        const miniA = document.createElement('div');
+        miniA.className = 'mini-layer show';
+        miniA.textContent = '';
+        const miniB = document.createElement('div');
+        miniB.className = 'mini-layer';
+        miniB.textContent = '';
+        miniTitle.appendChild(miniA);
+        miniTitle.appendChild(miniB);
+        document.body.appendChild(miniTitle);
+        let miniShowingA = true;
+        const crossfadeMini = (text) => {
+          const showEl = miniShowingA ? miniB : miniA;
+          const hideEl = miniShowingA ? miniA : miniB;
+          showEl.textContent = text;
+          showEl.classList.add('show');
+          hideEl.classList.remove('show');
+          miniShowingA = !miniShowingA;
+        };
+        const resetMini = () => {
+          miniA.classList.remove('show');
+          miniB.classList.remove('show');
+        };
+        const miniTabs = [];
         miniItems.forEach((item) => {
           const bar = document.createElement('a');
           bar.className = 'bar';
@@ -150,12 +186,19 @@
           img.style.backgroundImage = `url(${item.img})`;
           fill.appendChild(img);
           bar.appendChild(fill);
-          // Create a text label for each bar that fades in on hover
-          const labelSpan = document.createElement('span');
-          labelSpan.className = 'bar__label';
-          labelSpan.textContent = item.label;
-          bar.appendChild(labelSpan);
           miniEq.appendChild(bar);
+          miniTabs.push(bar);
+          bar.addEventListener('mouseenter', () => {
+            crossfadeMini(item.label);
+          });
+          bar.addEventListener('mouseleave', () => {
+            setTimeout(() => {
+              const any = miniTabs.some(t => t.matches(':hover'));
+              if (!any) {
+                resetMini();
+              }
+            }, 10);
+          });
         });
       });
     </script>
