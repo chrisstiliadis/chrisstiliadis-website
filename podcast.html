@@ -1,40 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Podcast - Chris Stiliadis</title>
-<link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/custom.css">
-<link rel="stylesheet" href="boombox_new.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Podcast - Chris Stiliadis</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/custom.css">
+    <!-- Mini equalizer navigation styles -->
+    <style>
+      #mini-eq {
+        --bar-width: 16px;
+        --bar-gap: 6px;
+        --eq-height: 80px;
+        --corner: 4px;
+        --lift: -10px;
+        --shadow: 0 8px 16px rgba(0,0,0,0.10);
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: var(--bar-width);
+        gap: var(--bar-gap);
+        align-items: end;
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        z-index: 1000;
+      }
+      #mini-eq .bar {
+        position: relative;
+        width: var(--bar-width);
+        height: var(--eq-height);
+        text-decoration: none;
+        transition: transform 0.3s, opacity 0.3s;
+      }
+      #mini-eq .bar__fill {
+        width: 100%;
+        height: 40%;
+        border-radius: var(--corner);
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        transition: transform 0.3s, box-shadow 0.3s;
+        position: relative;
+        isolation: isolate;
+        animation: mini-updown 1.4s ease-in-out infinite;
+      }
+      #mini-eq .bar__img {
+        position: absolute;
+        inset: 0;
+        background-position: center;
+        background-size: cover;
+        filter: contrast(1.05) saturate(1.05);
+      }
+      #mini-eq .bar:hover .bar__fill {
+        transform: translateY(var(--lift));
+        box-shadow: var(--shadow);
+      }
+      @keyframes mini-updown {
+        0%, 100% { height: 30%; }
+        50% { height: 85%; }
+      }
+    </style>
 </head>
 <body>
-<header>
-  <h1>Podcast</h1>
-</header>
-<main>
-  <div id="podcast-container"></div>
-</main>
-
-<nav class="boombox-nav">
-  <div class="boombox-surface"></div>
-  <ul class="deck-buttons" aria-label="Site navigation">
-    <li><a class="btn" href="commercial.html" data-label="COMMERCIAL REEL"></a></li>
-    <li><a class="btn" href="artist.html"      data-label="ARTIST REEL"></a></li>
-    <li><a class="btn" href="podcast.html"     data-label="PODCAST REEL"></a></li>
-    <li><a class="btn" href="contact.html"     data-label="CONTACT"></a></li>
-  </ul>
-  <aside class="mini-screen" aria-label="Now Playing">
-    <div class="screen-bezel">
-      <div id="spotify-player"></div>
-      <div class="vu"><span></span><span></span><span></span><span></span></div>
-    </div>
-  </aside>
-</nav>
-
-<script src="js/data.js"></script>
-<script src="js/scripts.js"></script>
-<script src="boombox_new.js"></script>
-<script src="js/spotify-autoplay.js"></script>
+    <header>
+        <h1>Podcast</h1>
+    </header>
+    <main>
+        <div id="podcast-container"></div>
+    </main>
+    <script src="js/data.js"></script>
+    <script src="js/scripts.js"></script>
+    <script src="js/spotify-autoplay.js"></script>
+    <!-- Mini equalizer navigation script -->
+    <script>
+      const miniItems = [
+        { img: "https://picsum.photos/seed/10/600/900", href: "commercial.html", label: "Commercial" },
+        { img: "https://picsum.photos/seed/11/600/900", href: "artist.html", label: "Artist" },
+        { img: "https://picsum.photos/seed/12/600/900", href: "podcast.html", label: "Podcast" },
+        { img: "https://picsum.photos/seed/13/600/900", href: "contact.html", label: "Contact" },
+        { img: "https://picsum.photos/seed/14/600/900", href: "boombox-demo.html", label: "Studio" },
+        { img: "https://picsum.photos/seed/15/600/900", href: "https://instagram.com", label: "Instagram" },
+        { img: "https://picsum.photos/seed/16/600/900", href: "#awards", label: "Awards" },
+        { img: "https://picsum.photos/seed/17/600/900", href: "#about", label: "About" }
+      ];
+      document.addEventListener('DOMContentLoaded', () => {
+        const miniEq = document.createElement('div');
+        miniEq.id = 'mini-eq';
+        document.body.appendChild(miniEq);
+        miniItems.forEach((item, i) => {
+          const bar = document.createElement('a');
+          bar.className = 'bar';
+          bar.href = item.href;
+          bar.setAttribute('aria-label', item.label);
+          const fill = document.createElement('div');
+          fill.className = 'bar__fill';
+          fill.style.animationDuration = (800 + Math.random() * 1000) + 'ms';
+          fill.style.animationDelay = (Math.random() * 500) + 'ms';
+          const img = document.createElement('div');
+          img.className = 'bar__img';
+          img.style.backgroundImage = `url(${item.img})`;
+          fill.appendChild(img);
+          bar.appendChild(fill);
+          miniEq.appendChild(bar);
+        });
+      });
+    </script>
 </body>
 </html>
