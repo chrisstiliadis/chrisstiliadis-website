@@ -1,30 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Chris Stiliadis</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/custom.css">
-
-  <link rel="stylesheet" href="boombox_new.css">
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --bar-width: 36px;
+      --bar-gap: 12px;
+      --eq-width: calc(var(--bar-width) * 8 + var(--bar-gap) * 7);
+      --eq-height: 200px;
+      --corner: 10px;
+      --shadow: 0 14px 28px rgba(0,0,0,0.08), 0 8px 12px rgba(0,0,0,0.04);
+      --lift: -18px;
+      --speed: 1200ms;
+      --eq-color: #555;
+    }
+    html, body { height: 100%; }
+    body {
+      margin: 0; background: var(--bg); display: grid; place-items: center;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+    .stage { width: min(100vw, 1200px); height: min(100vh, 800px); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+    .title { position: relative; height: 42px; margin-bottom: 40px; width: 100%; display: grid; place-items: center; }
+    .title-layer {
+      position: absolute; inset: 0; display: grid; place-items: center;
+      font-family: 'VT323', monospace; font-weight: 400; letter-spacing: 0.08em;
+      font-size: clamp(18px, 2.6vw, 38px); text-transform: uppercase; user-select: none;
+      color: var(--eq-color); text-shadow: 0 0 6px rgba(0,0,0,0.25);
+      opacity: 0; transition: opacity 220ms ease;
+    }
+    .title-layer.show { opacity: 0.92; }
+    .eq { width: var(--eq-width); height: var(--eq-height); display: grid; grid-auto-flow: column; grid-auto-columns: var(--bar-width); gap: var(--bar-gap); align-items: end; position: relative; }
+    .bar { position: relative; width: var(--bar-width); height: 100%; display: grid; align-items: end; cursor: pointer; transition: transform 0.3s ease, opacity 0.3s ease; text-decoration: none; }
+    .bar__fill { width: 100%; height: 40%; border-radius: var(--corner); overflow: hidden; box-shadow: 0 6px 14px rgba(0,0,0,0.06); transition: transform 220ms ease, box-shadow 220ms ease; will-change: transform; position: relative; isolation: isolate; animation: updown var(--speed) ease-in-out infinite; }
+    .bar__img { position: absolute; inset: 0; background-position: center; background-size: cover; filter: contrast(1.02) saturate(1.02); }
+    .bar__grain::after { content: ""; position: absolute; inset: 0; background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140" viewBox="0 0 140 140"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="1" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.04"/></svg>') repeat; mix-blend-mode: multiply; pointer-events: none; }
+    @keyframes updown { 0%, 100% { height: 30%; } 25% { height: 80%; } 50% { height: 40%; } 75% { height: 90%; } }
+    .bar:hover .bar__fill, .bar[aria-selected="true"] .bar__fill { transform: translateY(var(--lift)); box-shadow: var(--shadow); animation-play-state: paused; }
+    .eq:hover .bar:not(:hover) { transform: scale(0.86); opacity: 0.72; }
+    .eq:hover .bar:not(:hover) .bar__fill { animation-duration: calc(var(--speed) * 1.8); }
+  </style>
 </head>
 <body>
-  <div id="site-header"></div>
-  <script src="/nav.js"></script>
-
-  <header class="hero">
-    <!-- Hosted logo image avoids requiring local assets -->
-    <img src="https://images.squarespace-cdn.com/content/v1/5854074ee58c02ac8f51bf68/1484083806704-L60CV6KB8B7P0P9GGOE8S/chris_logo.png" alt="Chris Stiliadis Logo">
-    <h3>Chris Stiliadis</h3>
-    <p>Music Producer, Composer &amp; Mix Engineer</p>
-  </header>
-
-  <main>
-    <p>Welcome to my personal website. Explore my commercial work, artist collaborations, podcast projects, and feel free to get in touch!</p>
-  </main>
-
-  <!-- Load scripts -->
-  <script src="js/spotify-autoplay.js"></script>
+  <div class="stage">
+    <div class="title">
+      <div id="titleA" class="title-layer show">Chris Stiliadis</div>
+      <div id="titleB" class="title-layer">&nbsp;</div>
+    </div>
+    <div class="eq" id="eq" role="tablist" aria-label="Primary navigation"></div>
+  </div>
+  <script>
+    const items = [
+      { img: "https://picsum.photos/seed/10/600/900", label: "Commercial", href: "commercial.html" },
+      { img: "https://picsum.photos/seed/11/600/900", label: "Artist", href: "artist.html" },
+      { img: "https://picsum.photos/seed/12/600/900", label: "Podcast", href: "podcast.html" },
+      { img: "https://picsum.photos/seed/13/600/900", label: "Contact", href: "contact.html" },
+      { img: "https://picsum.photos/seed/14/600/900", label: "Studio", href: "boombox-demo.html" },
+      { img: "https://picsum.photos/seed/15/600/900", label: "Instagram", href: "https://instagram.com" },
+      { img: "https://picsum.photos/seed/16/600/900", label: "Awards", href: "#awards" },
+      { img: "https://picsum.photos/seed/17/600/900", label: "About", href: "#about" }
+    ];
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AudioCtx();
+    const hardUnlock = () => { if (ctx.state === 'suspended') ctx.resume(); };
+    ['pointerdown','keydown','click','touchstart','pointerover','mousemove'].forEach(ev => window.addEventListener(ev, hardUnlock, { passive:true }));
+    const baseFreqs = [48, 54, 58, 62, 66, 72, 78, 84];
+    const lastPlayed = new Map();
+    const COOLDOWN_MS = 160;
+    function play808(i){
+      const now = ctx.currentTime; const last = lastPlayed.get(i)||0;
+      if (now - last < COOLDOWN_MS/1000) return;
+      lastPlayed.set(i, now);
+      const freq = baseFreqs[i % baseFreqs.length]; const dur = 1.1 + (i%3)*0.1;
+      const osc = ctx.createOscillator(); osc.type='sine';
+      const gain = ctx.createGain(); const lp = ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=600;
+      const shaper = ctx.createWaveShaper(); shaper.curve = new Float32Array(256).map((_,n)=>{const x=n/128-1; return Math.tanh(2.0*x);});
+      const t0 = ctx.currentTime; const f0 = freq*2.2;
+      osc.frequency.setValueAtTime(f0,t0);
+      osc.frequency.exponentialRampToValueAtTime(freq, t0+0.12);
+      osc.frequency.exponentialRampToValueAtTime(freq*0.92, t0+0.6);
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(0.9, t0+0.01);
+      gain.gain.exponentialRampToValueAtTime(0.2, t0+0.18);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+      osc.connect(shaper); shaper.connect(lp); lp.connect(gain); gain.connect(ctx.destination);
+      osc.start(t0); osc.stop(t0 + dur + 0.05);
+    }
+    async function tryResumeAndPlay(i){ try { if (ctx.state==='suspended') await ctx.resume(); } catch(_){} play808(i); }
+    const titleA = document.getElementById('titleA');
+    const titleB = document.getElementById('titleB');
+    let showingA = true;
+    function crossfadeTitle(text){
+      const showEl = showingA ? titleB : titleA;
+      const hideEl = showingA ? titleA : titleB;
+      showEl.textContent = text; showEl.classList.add('show');
+      hideEl.classList.remove('show'); showingA = !showingA;
+    }
+    function resetTitle(){
+      const defaultText = 'Chris Stiliadis';
+      const showEl = showingA ? titleB : titleA;
+      const hideEl = showingA ? titleA : titleB;
+      showEl.textContent = defaultText; showEl.classList.add('show');
+      hideEl.classList.remove('show'); showingA = !showingA;
+    }
+    const eq = document.getElementById('eq');
+    const tabs = [];
+    items.forEach((item, i) => {
+      const bar = document.createElement('a');
+      bar.className = 'bar';
+      bar.href = item.href; bar.setAttribute('role','tab');
+      bar.setAttribute('aria-selected','false'); bar.setAttribute('aria-label', item.label);
+      bar.setAttribute('data-i', i);
+      bar.tabIndex = (i===0?0:-1);
+      const fill = document.createElement('div'); fill.className='bar__fill bar__grain';
+      const img = document.createElement('div'); img.className='bar__img'; img.style.backgroundImage = `url(${item.img})`;
+      fill.appendChild(img); bar.appendChild(fill); eq.appendChild(bar); tabs.push(bar);
+      fill.style.animationDuration = (800 + Math.random()*1200) + 'ms';
+      fill.style.animationDelay    = (Math.random()*600|0) + 'ms';
+      const activate = () => {
+        tabs.forEach(t=>t.setAttribute('aria-selected','false'));
+        bar.setAttribute('aria-selected','true');
+        crossfadeTitle(item.label);
+        tryResumeAndPlay(i);
+      };
+      const deactivateIfNone = () => {
+        const any = tabs.some(t => t.matches(':hover') || t === document.activeElement);
+        if(!any){ resetTitle(); tabs.forEach(t=>t.setAttribute('aria-selected','false')); }
+      };
+      bar.addEventListener('mouseenter', activate);
+      bar.addEventListener('mouseleave', deactivateIfNone);
+      bar.addEventListener('focus', activate);
+      bar.addEventListener('blur', deactivateIfNone);
+      bar.addEventListener('keydown', (e)=>{
+        if(e.key==='Enter' || e.key===' '){ e.preventDefault(); bar.click(); }
+        if(e.key==='ArrowRight' || e.key==='ArrowLeft'){
+          e.preventDefault();
+          const dir = e.key==='ArrowRight' ? 1 : -1;
+          const next = (i + dir + tabs.length) % tabs.length;
+          tabs[next].focus();
+        }
+      });
+    });
+  </script>
 </body>
 </html>
