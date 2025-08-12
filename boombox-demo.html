@@ -1,203 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Boombox Navigation Demo</title>
-<style>
-:root{
-  --plate:#2a2a2a;
-  --button:#2b2b2b;
-  --button-top:#3a3a3a;
-  --label:#dfe4ea;
-}
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studio - Chris Stiliadis</title>
+    <!-- Use the site's shared stylesheets for consistent look and feel -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/custom.css">
+    <!-- Mini equalizer navigation styles -->
+    <style>
+      /*
+        Mini equalizer navigation styles
 
-body{
-  margin:0;
-  padding:0;
-  font-family:Arial, sans-serif;
-  background:#111;
-  color:#fff;
-  padding-bottom:170px;
-}
-
-.boombox-nav{
-  position:fixed;
-  left:0;
-  right:0;
-  bottom:0;
-  height:170px;
-  background:
-    radial-gradient(200% 140% at 50% 120%, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 60%),
-    linear-gradient(90deg, rgba(255,255,255,.05) 0 2%, transparent 0 8%, rgba(255,255,255,.04) 0 10%),
-    linear-gradient(#2e2e2e,#1f1f1f 18%, #242424 55%, #1a1a1a);
-  box-shadow:0 -18px 40px rgba(0,0,0,.55), inset 0 2px 0 rgba(255,255,255,.08), inset 0 -2px 0 rgba(0,0,0,.7);
-  z-index:9999;
-}
-
-.boombox-surface{
-  position:absolute;
-  left:10px;
-  right:10px;
-  top:10px;
-  bottom:60px;
-  border-radius:10px;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.15), rgba(255,255,255,0) 30%),
-    linear-gradient(180deg, #333 0%, #1b1b1b 100%);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.12), inset 0 -2px 0 rgba(0,0,0,.7);
-}
-
-.deck-buttons{
-  list-style:none;
-  margin:0;
-  padding:0;
-  position:absolute;
-  left:30px;
-  right:360px;
-  bottom:22px;
-  display:flex;
-  gap:14px;
-}
-
-.deck-buttons .btn{
-  --w:210px;
-  --h:54px;
-  display:block;
-  width:var(--w);
-  height:var(--h);
-  position:relative;
-  border-radius:8px;
-  background:
-    radial-gradient(120% 220% at 50% -60%, rgba(255,255,255,.35) 0 40%, rgba(255,255,255,0) 60%),
-    linear-gradient(180deg, var(--button-top), var(--button));
-  box-shadow:
-    0 6px 0 #0b0b0b,
-    inset 0 1px 0 rgba(255,255,255,.25),
-    inset 0 -2px 0 rgba(0,0,0,.65),
-    inset 0 0 0 1px #1a1a1a;
-  overflow:hidden;
-  transition:transform .06s ease, box-shadow .06s ease;
-}
-
-.deck-buttons .btn::before{
-  content:"";
-  position:absolute;
-  left:8px;
-  right:8px;
-  top:8px;
-  bottom:8px;
-  border-radius:6px;
-  background:
-    radial-gradient(60% 60% at 50% 45%, rgba(255,255,255,.08) 0, rgba(255,255,255,0) 60%),
-    repeating-linear-gradient(0deg, rgba(255,255,255,.02) 0 1px, rgba(0,0,0,.02) 1px 2px);
-  mix-blend-mode:screen;
-  opacity:.8;
-}
-
-.deck-buttons .btn::after{
-  content:attr(data-label);
-  position:absolute;
-  left:50%;
-  top:-22px;
-  transform:translateX(-50%);
-  font:700 12px/1 "Arial Narrow", sans-serif;
-  letter-spacing:.12em;
-  color:var(--label);
-  text-shadow:0 1px 0 rgba(0,0,0,.8);
-}
-
-.deck-buttons .btn:active{
-  transform:translateY(6px);
-  box-shadow:
-    0 0 0 #0b0b0b,
-    inset 0 0 0 rgba(255,255,255,0),
-    inset 0 2px 0 rgba(0,0,0,.75),
-    inset 0 0 0 1px #0d0d0d;
-}
-
-.mini-screen{
-  position:absolute;
-  right:26px;
-  bottom:22px;
-  width:300px;
-  height:98px;
-}
-
-.screen-bezel{
-  position:relative;
-  width:100%;
-  height:100%;
-  border-radius:10px;
-  background:linear-gradient(180deg,#3b3b3b,#191919);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.18), inset 0 -2px 0 rgba(0,0,0,.75), 0 8px 24px rgba(0,0,0,.5);
-  padding:10px;
-}
-
-.spotify{
-  width:100%;
-  height:100%;
-  border-radius:6px;
-}
-
-.vu{
-  position:absolute;
-  right:10px;
-  top:10px;
-  display:flex;
-  gap:3px;
-}
-
-.vu span{
-  width:3px;
-  height:38px;
-  background:#9efc7a;
-  opacity:.85;
-  animation:vuAnim 600ms ease-in-out infinite alternate;
-}
-
-.vu span:nth-child(2){ animation-delay:80ms; }
-.vu span:nth-child(3){ animation-delay:160ms; }
-.vu span:nth-child(4){ animation-delay:240ms; }
-
-@keyframes vuAnim {
-  from { transform:scaleY(.2); }
-  to { transform:scaleY(1); }
-}
-
-@media(max-width:900px){
-  .deck-buttons .btn{ --w:42vw; }
-  .deck-buttons{ left:18px; right:18px; gap:10px; flex-wrap:wrap; justify-content:center; }
-  .mini-screen{ position:static; margin:10px auto 12px; width:92vw; height:86px; }
-  .boombox-surface{ left:10px; right:10px; top:10px; bottom:80px; }
-}
-</style>
-</head>
-<body>
-<h1 style="text-align:center; padding:80px 20px 30px;">Boombox Navigation Demo</h1>
-<p style="text-align:center; margin-bottom:200px;">This page demonstrates the cassette-style navigation bar.</p>
-<nav class="boombox-nav">
-  <div class="boombox-surface"></div>
-  <ul class="deck-buttons" aria-label="Site navigation">
-    <li><a class="btn" data-label="COMMERCIAL REEL" href="#commercial"></a></li>
-    <li><a class="btn" data-label="ARTIST REEL" href="#artist"></a></li>
-    <li><a class="btn" data-label="PODCAST REEL" href="#podcast"></a></li>
-    <li><a class="btn" data-label="CONTACT" href="#contact"></a></li>
-  </ul>
-  <aside class="mini-screen" aria-label="Now Playing">
-    <div class="screen-bezel">
-      <iframe class="spotify" src="https://open.spotify.com/embed/playlist/2tZL2KmBep32gptkMH58Xs?utm_source=generator&theme=0" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
-      <div class="vu"><span></span><span></span><span></span><span></span></div>
-    </div>
-  </aside>
-</nav>
-<script>
-const clickFx = new Audio('click.wav');
-document.querySelectorAll('.deck-buttons .btn').forEach(btn=>{
-  btn.addEventListener('mousedown',()=>{ btn.classList.add('is-pressed'); });
-  btn.addEventListener('mouseup',()=>{ btn.classList.remove('is-pressed'); });
-  btn.addEventListener('mouseleave',()=>{ btn.classList.remove('is-pressed'); });
-  btn.addEventListener('click',()=>{ try{ clickFx.currentTime=0; clickFx.play(); }catch(e){} });
-});
-</script>
-</body>
+        These rules mirror the small equalizer bar used on the other secondary
+        pages. The navigation sits in the bottom‑left corner of the viewport
+        and uses eight slender bars. Each bar contains a background image and
+        animates vertically to evoke an audio equalizer. Hovering over a bar
+        lifts it slightly and adds a shadow for a tactile feel.
+      */
+      #mini-eq {
+        --bar-width: 16px;
+        --bar-gap: 6px;
+        --eq-height: 80px;
+        --corner: 4px;
+        --lift: -10px;
+        --shadow: 0 8px 16px rgba(0, 0, 0, 0.10);
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: var(--bar-width);
+        gap: var(--bar-gap);
+        align-items: end;
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        z-index: 1000;
+      }
+      #mini-eq .bar {
+        position: relative;
+        width: var(--bar-width);
+        height: var(--eq-height);
+        text-decoration: none;
+        transition: transform 0.3s, opacity 0.3s;
+      }
+      #mini-eq .bar__fill {
+        width: 100%;
+        height: 40%;
+        border-radius: var(--corner);
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s, box-shadow 0.3s;
+        position: relative;
+        isolation: isolate;
+        animation: mini-updown 1.4s ease-in-out infinite;
+      }
+      #mini-eq .bar__img {
+        position: absolute;
+        inset: 0;
+        background-position: center;
+        background-size: cover;
+        filter: contrast(1.05) saturate(1.05);
+      }
+      #mini-eq .bar:hover .bar__fill {
+        transform: translateY(var(--lift));
+        box-shadow: var(--shadow);
+      }
+      @keyframes mini-updown {
+        0%, 100% {
+          height: 30%;
+        }
+        50% {
+          height: 85%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Studio</h1>
+    </header>
+    <main>
+      <h2>Boombox Navigation Demo</h2>
+      <p>
+        This page originally showcased the cassette‑style navigation bar. To keep
+        navigation consistent across the site, the old boombox controls have been
+        removed. Use the mini equalizer in the bottom‑left corner to explore the
+        rest of the site.
+      </p>
+    </main>
+    <!-- Include shared scripts so dynamic data continues to work on this page -->
+    <script src="js/data.js"></script>
+    <script src="js/scripts.js"></script>
+    <script src="js/spotify-autoplay.js"></script>
+    <!-- Mini equalizer navigation script -->
+    <script>
+      /*
+        miniItems defines the eight navigation destinations. Each item contains
+        a placeholder image from picsum.photos, a destination URL, and a label.
+        You can replace the URLs with real pages or external links as needed.
+      */
+      const miniItems = [
+        { img: "https://picsum.photos/seed/10/600/900", href: "commercial.html", label: "Commercial" },
+        { img: "https://picsum.photos/seed/11/600/900", href: "artist.html", label: "Artist" },
+        { img: "https://picsum.photos/seed/12/600/900", href: "podcast.html", label: "Podcast" },
+        { img: "https://picsum.photos/seed/13/600/900", href: "contact.html", label: "Contact" },
+        { img: "https://picsum.photos/seed/14/600/900", href: "boombox-demo.html", label: "Studio" },
+        { img: "https://picsum.photos/seed/15/600/900", href: "https://instagram.com", label: "Instagram" },
+        { img: "https://picsum.photos/seed/16/600/900", href: "#awards", label: "Awards" },
+        { img: "https://picsum.photos/seed/17/600/900", href: "#about", label: "About" }
+      ];
+      document.addEventListener('DOMContentLoaded', () => {
+        const miniEq = document.createElement('div');
+        miniEq.id = 'mini-eq';
+        document.body.appendChild(miniEq);
+        miniItems.forEach((item) => {
+          const bar = document.createElement('a');
+          bar.className = 'bar';
+          bar.href = item.href;
+          bar.setAttribute('aria-label', item.label);
+          const fill = document.createElement('div');
+          fill.className = 'bar__fill';
+          // Randomize animation duration and delay for organic movement
+          fill.style.animationDuration = (800 + Math.random() * 1000) + 'ms';
+          fill.style.animationDelay = (Math.random() * 500) + 'ms';
+          const img = document.createElement('div');
+          img.className = 'bar__img';
+          img.style.backgroundImage = `url(${item.img})`;
+          fill.appendChild(img);
+          bar.appendChild(fill);
+          miniEq.appendChild(bar);
+        });
+      });
+    </script>
+  </body>
 </html>
