@@ -42,6 +42,7 @@
         position: relative;
         isolation: isolate;
         animation: mini-updown 1.4s ease-in-out infinite;
+        background: #333;
       }
       #mini-eq .bar__img {
         position: absolute;
@@ -156,9 +157,10 @@
           fill.className = 'bar__fill';
           fill.style.animationDuration = (800 + Math.random() * 1000) + 'ms';
           fill.style.animationDelay = (Math.random() * 500) + 'ms';
-          const img = document.createElement('div');
-          img.className = 'bar__img';
-          img.style.backgroundImage = `url(${item.img})`;
+               const img = document.createElement('div');
+               img.className = 'bar__img';
+               // Use 'none' when there is no image specified so that no placeholder background appears
+               img.style.backgroundImage = item.img ? `url(${item.img})` : 'none';
           fill.appendChild(img);
           bar.appendChild(fill);
           miniEq.appendChild(bar);
