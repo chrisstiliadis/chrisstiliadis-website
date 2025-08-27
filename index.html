@@ -69,14 +69,18 @@
     const hardUnlock = () => { if (ctx.state === 'suspended') ctx.resume(); };
     ['pointerdown','keydown','click','touchstart','pointerover','mousemove'].forEach(ev => window.addEventListener(ev, hardUnlock, { passive:true }));
     const baseFreqs = [48, 54, 58, 62, 66, 72, 78, 84];
-    const lastPlayed = new Map();
-    const COOLDOWN_MS = 160;
+    // Track the currently playing oscillator so we can stop it when a new bar is activated.
+    let currentOsc = null;
     function play808(i){
-      const now = ctx.currentTime; const last = lastPlayed.get(i)||0;
-      if (now - last < COOLDOWN_MS/1000) return;
-      lastPlayed.set(i, now);
-      const freq = baseFreqs[i % baseFreqs.length]; const dur = 1.1 + (i%3)*0.1;
-      const osc = ctx.createOscillator(); osc.type='sine';
+      // Stop any previously playing oscillator to prevent overlapping sounds
+      if (currentOsc) {
+        try { currentOsc.stop(); } catch(_) {}
+        currentOsc = null;
+      }
+      const freq = baseFreqs[i % baseFreqs.length];
+      const dur = 1.1 + (i % 3) * 0.1;
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
       const gain = ctx.createGain(); const lp = ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=600;
       const shaper = ctx.createWaveShaper(); shaper.curve = new Float32Array(256).map((_,n)=>{const x=n/128-1; return Math.tanh(2.0*x);});
       const t0 = ctx.currentTime; const f0 = freq*2.2;
@@ -87,8 +91,14 @@
       gain.gain.exponentialRampToValueAtTime(0.9, t0+0.01);
       gain.gain.exponentialRampToValueAtTime(0.2, t0+0.18);
       gain.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
-      osc.connect(shaper); shaper.connect(lp); lp.connect(gain); gain.connect(ctx.destination);
-      osc.start(t0); osc.stop(t0 + dur + 0.05);
+      osc.connect(shaper);
+      shaper.connect(lp);
+      lp.connect(gain);
+      gain.connect(ctx.destination);
+      // Store the oscillator so it can be stopped when another bar is hovered
+      currentOsc = osc;
+      osc.start(t0);
+      osc.stop(t0 + dur + 0.05);
     }
     async function tryResumeAndPlay(i){ try { if (ctx.state==='suspended') await ctx.resume(); } catch(_){} play808(i); }
     const titleA = document.getElementById('titleA');
