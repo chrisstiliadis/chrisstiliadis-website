@@ -100,7 +100,25 @@
       osc.start(t0);
       osc.stop(t0 + dur + 0.05);
     }
-    async function tryResumeAndPlay(i){ try { if (ctx.state==='suspended') await ctx.resume(); } catch(_){} play808(i); }
+    /*
+     * Resume the audio context and play the 808 immediately on hover.
+     * Browsers often suspend AudioContext until a user gesture occurs.  To ensure
+     * that hovering a bar triggers sound without requiring an extra click, we
+     * resume the context and then play the tone within the same event handler.
+     */
+    function tryResumeAndPlay(i){
+      // If the context is suspended, attempt to resume it and then play.
+      if (ctx.state === 'suspended'){
+        ctx.resume().then(() => {
+          play808(i);
+        }).catch(() => {
+          // Even if resume() rejects (e.g. due to lack of gesture), still attempt playback.
+          play808(i);
+        });
+      } else {
+        play808(i);
+      }
+    }
     const titleA = document.getElementById('titleA');
     const titleB = document.getElementById('titleB');
     let showingA = true;
