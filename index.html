@@ -44,7 +44,7 @@
     .eq:hover .bar:not(:hover) { transform: scale(0.86); opacity: 0.72; }
     .eq:hover .bar:not(:hover) .bar__fill { animation-duration: calc(var(--speed) * 1.8); }
 
-    /* Colour knob styles – design an 8‑bit inspired knob with shading and border */
+    /* Overdrive knob styles – design an 8‑bit inspired knob with shading and border */
     #color-knob-container {
       position: fixed;
       bottom: 20px;
@@ -85,6 +85,15 @@
       top: 6px;
       left: calc(50% - 2px);
     }
+
+    /* Text distortion animation triggered when overdrive is active.  When the
+       distortion is applied, the title gently scales and skews to mimic the
+       effect of the bass shaking the letters.  Additional rules could be
+       applied to other elements if desired. */
+    .text-distort .title-layer {
+      transform: scale(1.08) skewX(3deg);
+      transition: transform 0.15s ease;
+    }
   </style>
 </head>
 <body>
@@ -117,6 +126,10 @@
     // Distortion amount for the home page.  The value ranges from 1 to 6 and is controlled
     // by the colour knob (lower values yield cleaner tone, higher values more distortion).
     let homeDistortionAmt = 2;
+    // Flag indicating whether the overdrive knob is engaged. When true, the
+    // distortion effect is increased and a visual text distortion is triggered
+    // each time the 808 sound is played.
+    let knobActive = false;
 
     // Generate a tanh-based distortion curve with the given amount.  Increasing the amount
     // increases the curvature of the waveform, which produces a more pronounced distortion.
@@ -165,6 +178,28 @@
       currentOsc = osc;
       osc.start(t0);
       osc.stop(t0 + dur + 0.05);
+
+      // If the overdrive knob is active, briefly apply a text distortion
+      // effect to the title (and other elements defined in CSS) to visually
+      // represent the bass shaking the page.  This class is removed after
+      // a short timeout so the distortion only lasts momentarily.
+      if (knobActive) {
+        triggerTextDistortion();
+      }
+    }
+
+    /**
+     * Briefly apply a text distortion by adding a CSS class to the document
+     * body.  The class triggers a transform on the title and other text
+     * elements defined in the stylesheet.  It is removed after 150ms so
+     * the effect is momentary.  This function is called whenever an 808
+     * plays while the overdrive knob is engaged.
+     */
+    function triggerTextDistortion() {
+      document.body.classList.add('text-distort');
+      setTimeout(() => {
+        document.body.classList.remove('text-distort');
+      }, 150);
     }
     /*
      * Resume the audio context and play the 808 immediately on hover.
@@ -252,7 +287,7 @@
       knobContainer.id = 'color-knob-container';
       const knobLabel = document.createElement('div');
       knobLabel.className = 'knob-label';
-      knobLabel.textContent = 'colour';
+      knobLabel.textContent = 'overdrive';
       const knob = document.createElement('div');
       knob.id = 'color-knob';
       // Insert a marker to show rotation direction
@@ -262,7 +297,9 @@
       knobContainer.appendChild(knobLabel);
       knobContainer.appendChild(knob);
       document.body.appendChild(knobContainer);
-      let isKnobDragging = false;
+      // knobActive is defined in the outer scope and tracks whether the
+      // overdrive is engaged.  Clicking the knob will toggle this flag and
+      // rotate the knob accordingly.
       function updateKnob(angle) {
         // limit rotation to 0..300 degrees so the knob doesn't wrap
         const limited = Math.max(0, Math.min(300, angle));
@@ -274,23 +311,14 @@
         homeDistortionAmt = 1 + normalized * 200;
       }
       knob.addEventListener('pointerdown', (e) => {
-        isKnobDragging = true;
+        // Toggle the knob state.  When active, rotate to 300° and set the
+        // distortion amount accordingly; when inactive, rotate back to 0°.
+        knobActive = !knobActive;
+        const targetAngle = knobActive ? 300 : 0;
+        updateKnob(targetAngle);
         knob.setPointerCapture(e.pointerId);
       });
-      document.addEventListener('pointermove', (e) => {
-        if (!isKnobDragging) return;
-        const rect = knob.getBoundingClientRect();
-        const cx = rect.left + rect.width / 2;
-        const cy = rect.top + rect.height / 2;
-        const dx = e.clientX - cx;
-        const dy = cy - e.clientY;
-        let angle = Math.atan2(dy, dx) * 180 / Math.PI;
-        angle = (angle + 360) % 360;
-        updateKnob(angle);
-      });
-      document.addEventListener('pointerup', (e) => {
-        if (!isKnobDragging) return;
-        isKnobDragging = false;
+      knob.addEventListener('pointerup', (e) => {
         knob.releasePointerCapture(e.pointerId);
       });
     });
