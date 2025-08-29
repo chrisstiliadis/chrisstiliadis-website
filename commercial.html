@@ -106,20 +106,23 @@
          display: flex;
          flex-direction: column;
          align-items: center;
-         font-size: 0.55rem;
-         letter-spacing: 0.04em;
-         color: #222;
-         text-shadow: 0 1px 2px rgba(255,255,255,0.6);
+    font-family: 'VT323', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.05em;
+    color: #222;
        }
   #color-knob-container .knob-label {
     margin-bottom: 2px;
   }
   #color-knob {
     -webkit-appearance: none;
-    width: 40px;
-    height: 40px;
+    appearance: none;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
-    background: #555;
+    background: #444;
+    border: 4px solid #222;
+    box-shadow: inset -4px -4px 6px rgba(0,0,0,0.6), inset 4px 4px 6px rgba(255,255,255,0.1);
     cursor: pointer;
     position: relative;
   }

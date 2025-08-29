@@ -43,6 +43,42 @@
     .bar:hover .bar__fill, .bar[aria-selected="true"] .bar__fill { transform: translateY(var(--lift)); box-shadow: var(--shadow); animation-play-state: paused; }
     .eq:hover .bar:not(:hover) { transform: scale(0.86); opacity: 0.72; }
     .eq:hover .bar:not(:hover) .bar__fill { animation-duration: calc(var(--speed) * 1.8); }
+
+    /* Colour knob styles – design an 8‑bit inspired knob with shading and border */
+    #color-knob-container {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: 'VT323', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.05em;
+      color: #222;
+    }
+    #color-knob-container .knob-label {
+      margin-bottom: 4px;
+    }
+    #color-knob {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #444;
+      border: 4px solid #222;
+      box-shadow: inset -4px -4px 6px rgba(0,0,0,0.6), inset 4px 4px 6px rgba(255,255,255,0.1);
+      cursor: pointer;
+      position: relative;
+    }
+    #color-knob::-webkit-slider-thumb {
+      -webkit-appearance: none;
+    }
+    #color-knob::-moz-range-thumb {
+      appearance: none;
+    }
   </style>
 </head>
 <body>
@@ -71,6 +107,22 @@
     const baseFreqs = [48, 54, 58, 62, 66, 72, 78, 84];
     // Track the currently playing oscillator so we can stop it when a new bar is activated.
     let currentOsc = null;
+
+    // Distortion amount for the home page.  The value ranges from 1 to 6 and is controlled
+    // by the colour knob (lower values yield cleaner tone, higher values more distortion).
+    let homeDistortionAmt = 2;
+
+    // Generate a tanh-based distortion curve with the given amount.  Increasing the amount
+    // increases the curvature of the waveform, which produces a more pronounced distortion.
+    function createDistortionCurve(amount) {
+      const samples = 256;
+      const curve = new Float32Array(samples);
+      for (let j = 0; j < samples; j++) {
+        const x = (j / (samples - 1)) * 2 - 1;
+        curve[j] = Math.tanh(amount * x);
+      }
+      return curve;
+    }
     function play808(i){
       // Stop any previously playing oscillator to prevent overlapping sounds
       if (currentOsc) {
@@ -82,7 +134,8 @@
       const osc = ctx.createOscillator();
       osc.type = 'sine';
       const gain = ctx.createGain(); const lp = ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=600;
-      const shaper = ctx.createWaveShaper(); shaper.curve = new Float32Array(256).map((_,n)=>{const x=n/128-1; return Math.tanh(2.0*x);});
+      const shaper = ctx.createWaveShaper();
+      shaper.curve = createDistortionCurve(homeDistortionAmt);
       const t0 = ctx.currentTime; const f0 = freq*2.2;
       osc.frequency.setValueAtTime(f0,t0);
       osc.frequency.exponentialRampToValueAtTime(freq, t0+0.12);
@@ -174,6 +227,29 @@
           const next = (i + dir + tabs.length) % tabs.length;
           tabs[next].focus();
         }
+      });
+    });
+
+    // Create the colour knob on the home page and update distortion amount on input.
+    document.addEventListener('DOMContentLoaded', () => {
+      const knobContainer = document.createElement('div');
+      knobContainer.id = 'color-knob-container';
+      const knobLabel = document.createElement('div');
+      knobLabel.className = 'knob-label';
+      knobLabel.textContent = 'colour';
+      const knob = document.createElement('input');
+      knob.type = 'range';
+      knob.id = 'color-knob';
+      knob.min = 0;
+      knob.max = 100;
+      knob.value = 0;
+      knobContainer.appendChild(knobLabel);
+      knobContainer.appendChild(knob);
+      document.body.appendChild(knobContainer);
+      knob.addEventListener('input', () => {
+        const value = parseFloat(knob.value) / 100;
+        // Map 0..1 range to 1..6 factor for distortion
+        homeDistortionAmt = 1 + value * 5;
       });
     });
   </script>
