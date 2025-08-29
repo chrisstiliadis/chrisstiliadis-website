@@ -249,27 +249,7 @@
         miniEq.id = 'mini-eq';
         document.body.appendChild(miniEq);
 
-        // Create colour knob container and elements
-        const knobContainer = document.createElement('div');
-        knobContainer.id = 'color-knob-container';
-        const knobLabel = document.createElement('div');
-        knobLabel.className = 'knob-label';
-        knobLabel.textContent = 'colour';
-        const knob = document.createElement('input');
-        knob.type = 'range';
-        knob.id = 'color-knob';
-        knob.min = 0;
-        knob.max = 100;
-        knob.value = 0;
-        knobContainer.appendChild(knobLabel);
-        knobContainer.appendChild(knob);
-        document.body.appendChild(knobContainer);
-        // Update distortion amount when the knob is moved
-        knob.addEventListener('input', () => {
-          const value = parseFloat(knob.value) / 100;
-          // Map 0..1 range to 1..6 factor for distortion
-          miniDistortionAmt = 1 + value * 5;
-        });
+        // No colour knob on this page.  miniDistortionAmt remains at its default value.
 
         // Create a mini title container for cross‑fading tab names
         const miniTitle = document.createElement('div');

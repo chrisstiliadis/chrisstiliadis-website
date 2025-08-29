@@ -62,8 +62,6 @@
       margin-bottom: 4px;
     }
     #color-knob {
-      -webkit-appearance: none;
-      appearance: none;
       width: 60px;
       height: 60px;
       border-radius: 50%;
@@ -72,12 +70,20 @@
       box-shadow: inset -4px -4px 6px rgba(0,0,0,0.6), inset 4px 4px 6px rgba(255,255,255,0.1);
       cursor: pointer;
       position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.1s linear;
     }
-    #color-knob::-webkit-slider-thumb {
-      -webkit-appearance: none;
-    }
-    #color-knob::-moz-range-thumb {
-      appearance: none;
+    /* small marker inside the knob that rotates with the knob */
+    #color-knob .marker {
+      width: 4px;
+      height: 20px;
+      background: #ddd;
+      border-radius: 2px;
+      position: absolute;
+      top: 6px;
+      left: calc(50% - 2px);
     }
   </style>
 </head>
@@ -230,26 +236,53 @@
       });
     });
 
-    // Create the colour knob on the home page and update distortion amount on input.
+    // Create the colour knob on the home page. The knob rotates when dragged and
+    // updates the distortion amount based on its angle. Rotating the knob
+    // clockwise increases the distortion applied to the 808 bass (values mapped
+    // from 1 to 6).
     document.addEventListener('DOMContentLoaded', () => {
       const knobContainer = document.createElement('div');
       knobContainer.id = 'color-knob-container';
       const knobLabel = document.createElement('div');
       knobLabel.className = 'knob-label';
       knobLabel.textContent = 'colour';
-      const knob = document.createElement('input');
-      knob.type = 'range';
+      const knob = document.createElement('div');
       knob.id = 'color-knob';
-      knob.min = 0;
-      knob.max = 100;
-      knob.value = 0;
+      // Insert a marker to show rotation direction
+      const marker = document.createElement('div');
+      marker.className = 'marker';
+      knob.appendChild(marker);
       knobContainer.appendChild(knobLabel);
       knobContainer.appendChild(knob);
       document.body.appendChild(knobContainer);
-      knob.addEventListener('input', () => {
-        const value = parseFloat(knob.value) / 100;
-        // Map 0..1 range to 1..6 factor for distortion
-        homeDistortionAmt = 1 + value * 5;
+      let isKnobDragging = false;
+      function updateKnob(angle) {
+        // limit rotation to 0..300 degrees so the knob doesn't wrap
+        const limited = Math.max(0, Math.min(300, angle));
+        knob.style.transform = `rotate(${limited}deg)`;
+        // normalize 0..300 to 0..1 and map to 1..6 for distortion
+        const normalized = limited / 300;
+        homeDistortionAmt = 1 + normalized * 5;
+      }
+      knob.addEventListener('pointerdown', (e) => {
+        isKnobDragging = true;
+        knob.setPointerCapture(e.pointerId);
+      });
+      document.addEventListener('pointermove', (e) => {
+        if (!isKnobDragging) return;
+        const rect = knob.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = e.clientX - cx;
+        const dy = cy - e.clientY;
+        let angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        angle = (angle + 360) % 360;
+        updateKnob(angle);
+      });
+      document.addEventListener('pointerup', (e) => {
+        if (!isKnobDragging) return;
+        isKnobDragging = false;
+        knob.releasePointerCapture(e.pointerId);
       });
     });
   </script>
