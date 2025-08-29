@@ -65,9 +65,14 @@
       width: 60px;
       height: 60px;
       border-radius: 50%;
-      background: #444;
-      border: 4px solid #222;
-      box-shadow: inset -4px -4px 6px rgba(0,0,0,0.6), inset 4px 4px 6px rgba(255,255,255,0.1);
+      /* Use a radial gradient to give the knob a more organic, lo‑fi look.  The
+         gradient is darker toward the edges and lighter near the top left to
+         mimic a worn tactile dial. */
+      background: radial-gradient(circle at 30% 30%, #555 0%, #333 70%, #222 100%);
+      /* Slightly darker border for a vintage feel */
+      border: 4px solid #111;
+      /* Softer inner shadows to avoid the pristine glossy look */
+      box-shadow: inset -3px -3px 5px rgba(0,0,0,0.5), inset 3px 3px 5px rgba(255,255,255,0.08);
       cursor: pointer;
       position: relative;
       display: flex;
@@ -84,6 +89,20 @@
       position: absolute;
       top: 6px;
       left: calc(50% - 2px);
+    }
+
+    /* Add a subtle noise overlay to the knob to enhance its lo‑fi, organic feel.  The
+       SVG fractal noise texture is repeated across the knob surface and blended
+       using multiply mode. */
+    #color-knob::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140" viewBox="0 0 140 140"><filter id="n3"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="1" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n3)" opacity="0.15"/></svg>') repeat;
+      mix-blend-mode: multiply;
+      opacity: 0.3;
+      pointer-events: none;
     }
 
     /* Text distortion animation triggered when overdrive is active.  When the
@@ -320,6 +339,33 @@
       });
       knob.addEventListener('pointerup', (e) => {
         knob.releasePointerCapture(e.pointerId);
+      });
+
+      // Position the knob so that it sits centered vertically relative to the
+      // equalizer and slightly offset to the left.  By calculating the
+      // bounding boxes of the equalizer and knob, we can compute top and
+      // left values that align the dial with the centre of the bars.  This
+      // function is called immediately and on window resize to maintain
+      // alignment when the viewport changes.
+      function positionKnob() {
+        const eqElem = document.getElementById('eq');
+        const knobElem = document.getElementById('color-knob-container');
+        if (!eqElem || !knobElem) return;
+        const eqRect = eqElem.getBoundingClientRect();
+        const knobRect = knobElem.getBoundingClientRect();
+        // Center vertically relative to the equalizer
+        const top = eqRect.top + eqRect.height / 2 - knobRect.height / 2;
+        // Position the knob to the left of the equalizer with some padding
+        const left = eqRect.left - knobRect.width - 30;
+        knobElem.style.position = 'fixed';
+        knobElem.style.top = `${top}px`;
+        knobElem.style.left = `${left}px`;
+      }
+      // Initially position the knob after the DOM has rendered
+      requestAnimationFrame(positionKnob);
+      // Reposition on window resize
+      window.addEventListener('resize', () => {
+        requestAnimationFrame(positionKnob);
       });
     });
   </script>
