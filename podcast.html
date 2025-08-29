@@ -22,7 +22,8 @@
         align-items: end;
         position: fixed;
         bottom: 20px;
-        left: 20px;
+        /* Offset the equalizer to the right to make room for the colour knob */
+        left: 80px;
         z-index: 1000;
       }
       #mini-eq .bar {
@@ -67,7 +68,8 @@
       #mini-title {
         position: fixed;
         bottom: calc(20px + var(--eq-height) + 8px);
-        left: 20px;
+        /* Align the cross‑fade label above the mini equalizer (not above the knob) */
+        left: 80px;
         height: 18px;
         min-width: 60px;
         z-index: 1001;
@@ -93,10 +95,12 @@
   /* Colour knob styling: a small control that floats to the left of the mini equalizer.
      Turning the knob increases the distortion applied to the 808 tones. */
   #color-knob-container {
+    /* Position the colour knob to the left of the mini equalizer */
     position: fixed;
     bottom: 20px;
     left: 20px;
-    transform: translateX(-60px);
+    /* Remove the negative translation so the knob remains within the viewport */
+    transform: none;
     z-index: 1000;
     display: flex;
     flex-direction: column;
