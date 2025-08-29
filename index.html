@@ -125,7 +125,12 @@
       const curve = new Float32Array(samples);
       for (let j = 0; j < samples; j++) {
         const x = (j / (samples - 1)) * 2 - 1;
-        curve[j] = Math.tanh(amount * x);
+        // Multiply by 2 so the input to tanh is larger. This produces a much more
+        // pronounced curve and therefore a harsher distortion.  Without this
+        // scaling the tanh quickly saturates and may not be audible at lower
+        // distortion values.  Higher distortion amounts now translate to very
+        // aggressive waveform clipping.
+        curve[j] = Math.tanh(amount * 2 * x);
       }
       return curve;
     }
@@ -141,6 +146,8 @@
       osc.type = 'sine';
       const gain = ctx.createGain(); const lp = ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=600;
       const shaper = ctx.createWaveShaper();
+      // Increase oversampling to make the distortion harsher and more apparent
+      shaper.oversample = '4x';
       shaper.curve = createDistortionCurve(homeDistortionAmt);
       const t0 = ctx.currentTime; const f0 = freq*2.2;
       osc.frequency.setValueAtTime(f0,t0);
@@ -260,9 +267,11 @@
         // limit rotation to 0..300 degrees so the knob doesn't wrap
         const limited = Math.max(0, Math.min(300, angle));
         knob.style.transform = `rotate(${limited}deg)`;
-        // normalize 0..300 to 0..1 and map to 1..6 for distortion
+        // Normalize 0..300 to 0..1 and map to a much wider range (1..201) for
+        // considerably stronger distortion.  Increasing the range here means
+        // the distortion curve scales more aggressively as the knob is turned.
         const normalized = limited / 300;
-        homeDistortionAmt = 1 + normalized * 5;
+        homeDistortionAmt = 1 + normalized * 200;
       }
       knob.addEventListener('pointerdown', (e) => {
         isKnobDragging = true;
