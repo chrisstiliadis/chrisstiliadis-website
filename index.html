@@ -62,8 +62,11 @@
       margin-bottom: 4px;
     }
     #color-knob {
-      width: 75px;
-      height: 75px;
+      /* Reduce the knob to roughly 30% of its previous size.  Previously
+         the knob was 75px square; scaling down to about 24px makes it
+         roughly 30% of that size, producing a more subtle control. */
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       /* Remove gradient and shadows since the knob graphic provides the visual styling */
       background: none;
