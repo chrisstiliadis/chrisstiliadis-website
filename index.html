@@ -132,6 +132,25 @@
       transform: scale(1.08) skewX(3deg);
       transition: transform 0.15s ease;
     }
+
+    /* Info box styling for contact/email and about description.  This element
+       appears below the equalizer when the user clicks the Contact or
+       About bar.  It fades in smoothly and shares the same monospace
+       aesthetic as the rest of the page. */
+    .info-box {
+      margin-top: 24px;
+      max-width: 80%;
+      text-align: center;
+      font-family: 'VT323', monospace;
+      font-size: 1.0rem;
+      line-height: 1.3;
+      color: var(--eq-color);
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+    .info-box.show {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -378,6 +397,59 @@
         }
       });
 
+      // ===== CONTACT/ABOUT INFO BOX SETUP =====
+      // Create a hidden info box that will display either the contact email
+      // or the about description when the corresponding nav bar is clicked.
+      const infoBox = document.createElement('div');
+      infoBox.id = 'info-box';
+      infoBox.className = 'info-box';
+      infoBox.textContent = '';
+      // Append the info box to the stage container so it appears below the
+      // equalizer (flex direction column ensures it sits underneath)
+      const stage = document.querySelector('.stage');
+      stage.appendChild(infoBox);
+
+      /**
+       * Play a simple riser sound.  The riser is generated using a
+       * sawtooth oscillator whose frequency sweeps upward and whose
+       * amplitude ramps up and down.  This function is called whenever
+       * the contact or about info is shown.  It uses the global audio
+       * context (ctx) so that the audio context will already be
+       * unlocked by any prior interaction.
+       */
+      function playRiser() {
+        const riserOsc = ctx.createOscillator();
+        const riserGain = ctx.createGain();
+        riserOsc.type = 'sawtooth';
+        riserOsc.connect(riserGain);
+        riserGain.connect(ctx.destination);
+        const now = ctx.currentTime;
+        // Sweep from 100 Hz to 800 Hz over 1.2 seconds
+        riserOsc.frequency.setValueAtTime(100, now);
+        riserOsc.frequency.linearRampToValueAtTime(800, now + 1.2);
+        // Fade in quickly and fade out at the end
+        riserGain.gain.setValueAtTime(0.001, now);
+        riserGain.gain.linearRampToValueAtTime(0.35, now + 0.3);
+        riserGain.gain.linearRampToValueAtTime(0.0001, now + 1.2);
+        riserOsc.start(now);
+        riserOsc.stop(now + 1.25);
+      }
+
+      /**
+       * Show information in the info box.  Sets the inner text and
+       * triggers a fade-in transition.  Also plays a riser sound when
+       * showing the info.  If the box is already visible, the text is
+       * simply updated.
+       * @param {string} text The text to display in the info box.
+       */
+      function showInfo(text) {
+        infoBox.textContent = text;
+        // Add the 'show' class to fade in if not already visible
+        infoBox.classList.add('show');
+        // Play the riser sound
+        playRiser();
+      }
+
       // Generate an impulse response for the reverb effect.  The impulse is
       // created as random noise that decays over time, giving a deep reverb.
       function generateReverbBuffer() {
@@ -486,6 +558,23 @@
         requestAnimationFrame(() => {
           positionKnob();
           positionReverbKnob();
+        });
+      });
+
+      // Attach click handlers to the navigation bars for Contact and About.
+      // Prevent navigation and instead display contextual information in the
+      // info box along with a riser sound.  Use the items array to
+      // determine which bar corresponds to each label.
+      tabs.forEach((bar, idx) => {
+        const label = items[idx].label;
+        bar.addEventListener('click', (e) => {
+          if (label === 'Contact') {
+            e.preventDefault();
+            showInfo('cstiliadis@gmail.com');
+          } else if (label === 'About') {
+            e.preventDefault();
+            showInfo('Chris Yonge is a Toronto-based producer, mix engineer and artist known for blending technical precision with creative vision. He has worked on major brand campaigns and with rising Canadian talent, earning a reputation for delivering polished, emotionally impactful sound. As an artist, Chris combines storytelling with atmospheric production, drawing from hip hop, R&B and alternative influences. Whether producing, mixing or creating his own music, he brings versatility and authenticity to every project.');
+          }
         });
       });
     });
