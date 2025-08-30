@@ -151,6 +151,19 @@
     .info-box.show {
       opacity: 1;
     }
+
+    /* Additional styling for any iframes placed inside the info box.  When
+       embedding external content such as a Spotify playlist, we ensure
+       the frame fills the available width, has a consistent height and
+       applies a grayscale filter to achieve a black‑and‑white look. */
+    .info-box iframe {
+      width: 100%;
+      max-width: 600px;
+      height: 380px;
+      border: none;
+      margin-top: 16px;
+      filter: grayscale(1);
+    }
   </style>
 </head>
 <body>
@@ -443,11 +456,57 @@
        * @param {string} text The text to display in the info box.
        */
       function showInfo(text) {
-        infoBox.textContent = text;
+        // Set the info box content using innerHTML so that rich HTML
+        // (such as iframe embeds) can be inserted when necessary.  For
+        // simple text strings this behaves the same as textContent.
+        infoBox.innerHTML = text;
         // Add the 'show' class to fade in if not already visible
         infoBox.classList.add('show');
         // Play the riser sound
         playRiser();
+      }
+
+      /**
+       * Play a light synth loading sound.  This riser uses a triangle
+       * oscillator to sweep up in pitch over a short duration.  It
+       * provides auditory feedback when the Artist tab is activated.
+       */
+      function playSynth() {
+        const synthOsc = ctx.createOscillator();
+        const synthGain = ctx.createGain();
+        synthOsc.type = 'triangle';
+        synthOsc.connect(synthGain);
+        synthGain.connect(ctx.destination);
+        const now = ctx.currentTime;
+        // Start with a mid‑range frequency and sweep up to a higher pitch
+        synthOsc.frequency.setValueAtTime(220, now);
+        synthOsc.frequency.linearRampToValueAtTime(880, now + 0.7);
+        // Envelope: fade in and out quickly
+        synthGain.gain.setValueAtTime(0.001, now);
+        synthGain.gain.linearRampToValueAtTime(0.4, now + 0.1);
+        synthGain.gain.linearRampToValueAtTime(0.001, now + 0.7);
+        synthOsc.start(now);
+        synthOsc.stop(now + 0.75);
+      }
+
+      /**
+       * Display a description and Spotify playlist for the artist tab.
+       * When invoked, this function plays a light synth sound and
+       * populates the info box with a descriptive sentence along with
+       * an embedded Spotify playlist.  The playlist is displayed in
+       * grayscale via CSS.  The info box fades in using its existing
+       * transition.
+       */
+      function showArtist() {
+        // Prepare the HTML content: a sentence followed by an iframe
+        const html = `
+          <p>A compilation of songs I've worked on – production, writing, engineering, mixing & mastering.</p>
+          <iframe src="https://open.spotify.com/embed/playlist/2tZL2KmBep32gptkMH58Xs?si=3320489602474efd" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+        `;
+        infoBox.innerHTML = html;
+        infoBox.classList.add('show');
+        // Play the light synth riser
+        playSynth();
       }
 
       // Generate an impulse response for the reverb effect.  The impulse is
@@ -567,15 +626,19 @@
       // determine which bar corresponds to each label.
       tabs.forEach((bar, idx) => {
         const label = items[idx].label;
-        bar.addEventListener('click', (e) => {
-          if (label === 'Contact') {
-            e.preventDefault();
-            showInfo('cstiliadis@gmail.com');
-          } else if (label === 'About') {
-            e.preventDefault();
-            showInfo('Chris Yonge is a Toronto-based producer, mix engineer and artist known for blending technical precision with creative vision. He has worked on major brand campaigns and with rising Canadian talent, earning a reputation for delivering polished, emotionally impactful sound. As an artist, Chris combines storytelling with atmospheric production, drawing from hip hop, R&B and alternative influences. Whether producing, mixing or creating his own music, he brings versatility and authenticity to every project.');
-          }
-        });
+      bar.addEventListener('click', (e) => {
+        if (label === 'Contact') {
+          e.preventDefault();
+          showInfo('cstiliadis@gmail.com');
+        } else if (label === 'About') {
+          e.preventDefault();
+          showInfo('Chris Yonge is a Toronto-based producer, mix engineer and artist known for blending technical precision with creative vision. He has worked on major brand campaigns and with rising Canadian talent, earning a reputation for delivering polished, emotionally impactful sound. As an artist, Chris combines storytelling with atmospheric production, drawing from hip hop, R&B and alternative influences. Whether producing, mixing or creating his own music, he brings versatility and authenticity to every project.');
+        } else if (label === 'Artist') {
+          // For the artist tab, prevent navigation and display the playlist
+          e.preventDefault();
+          showArtist();
+        }
+      });
       });
     });
   </script>
