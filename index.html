@@ -87,6 +87,43 @@
       user-select: none;
     }
 
+    /* Styling for the reverb knob container.  Mirrors the overdrive knob
+       container but will be positioned on the opposite (right) side of the
+       equalizer via JavaScript. */
+    #reverb-knob-container {
+      position: fixed;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: 'VT323', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.05em;
+      color: #222;
+    }
+    #reverb-knob-container .knob-label {
+      margin-bottom: 4px;
+    }
+    #reverb-knob {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: none;
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    #reverb-knob img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      user-select: none;
+    }
+
     /* Text distortion animation triggered when overdrive is active.  When the
        distortion is applied, the title gently scales and skews to mimic the
        effect of the bass shaking the letters.  Additional rules could be
@@ -132,6 +169,17 @@
     // each time the 808 sound is played.
     let knobActive = false;
 
+    // Flag indicating whether the reverb knob is engaged. When true, a
+    // convolution reverb is applied to the 808 bass lines.  Reverb is
+    // created using an impulse response generated on page load.
+    let homeReverbActive = false;
+
+    // Buffer holding a generated impulse response for the reverb effect.
+    // This buffer is created once when the page loads.  Each time an 808
+    // note plays while reverb is active a new Convolver node is created
+    // and assigned this buffer.
+    let reverbBuffer = null;
+
     // Generate a tanh-based distortion curve with the given amount.  Increasing the amount
     // increases the curvature of the waveform, which produces a more pronounced distortion.
     function createDistortionCurve(amount) {
@@ -173,7 +221,20 @@
       gain.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
       osc.connect(shaper);
       shaper.connect(lp);
-      lp.connect(gain);
+      // If the reverb knob is active and an impulse buffer has been
+      // generated, insert a Convolver node between the lowpass filter
+      // and the gain.  Otherwise connect directly to the gain.  A new
+      // convolver is created each time to avoid accumulating multiple
+      // connections on a single node.  The global reverbBuffer contains
+      // the impulse response used for the convolution.
+      if (homeReverbActive && reverbBuffer) {
+        const convolver = ctx.createConvolver();
+        convolver.buffer = reverbBuffer;
+        lp.connect(convolver);
+        convolver.connect(gain);
+      } else {
+        lp.connect(gain);
+      }
       gain.connect(ctx.destination);
       // Store the oscillator so it can be stopped when another bar is hovered
       currentOsc = osc;
@@ -317,31 +378,115 @@
         }
       });
 
-      // Position the knob so that it sits centered vertically relative to the
-      // equalizer and slightly offset to the left.  By calculating the
-      // bounding boxes of the equalizer and knob, we can compute top and
-      // left values that align the dial with the centre of the bars.  This
-      // function is called immediately and on window resize to maintain
-      // alignment when the viewport changes.
+      // Generate an impulse response for the reverb effect.  The impulse is
+      // created as random noise that decays over time, giving a deep reverb.
+      function generateReverbBuffer() {
+        const rate = ctx.sampleRate;
+        const length = rate * 2.5; // 2.5 second tail
+        const impulse = new Float32Array(length);
+        for (let j = 0; j < length; j++) {
+          // Random noise multiplied by a squared decay envelope
+          impulse[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / length, 2);
+        }
+        const buffer = ctx.createBuffer(1, length, rate);
+        buffer.copyToChannel(impulse, 0);
+        return buffer;
+      }
+      // Create the reverb buffer once
+      reverbBuffer = generateReverbBuffer();
+
+      // ===== CREATE REVERB KNOB =====
+      // In addition to the overdrive knob on the left, we add a reverb knob on the
+      // right side of the equalizer.  This knob toggles a deep reverb effect
+      // applied to the 808 bass when engaged.  It uses the same knob images
+      // provided by the user (clean and distorted) and toggles between them
+      // when clicked.  The reverb effect is implemented via a Convolver node
+      // whose impulse response is generated on page load (see generateReverbBuffer).
+      const reverbContainer = document.createElement('div');
+      reverbContainer.id = 'reverb-knob-container';
+      // Label for the reverb knob
+      const reverbLabel = document.createElement('div');
+      reverbLabel.className = 'knob-label';
+      reverbLabel.textContent = 'reverb';
+      // Create the clickable reverb knob
+      const reverbKnob = document.createElement('div');
+      reverbKnob.id = 'reverb-knob';
+      // Image element for the knob graphic
+      const reverbImg = document.createElement('img');
+      reverbImg.id = 'reverb-knob-img';
+      // Use the clean knob graphic by default
+      reverbImg.src = 'knob-clean.png';
+      reverbKnob.appendChild(reverbImg);
+      reverbContainer.appendChild(reverbLabel);
+      reverbContainer.appendChild(reverbKnob);
+      document.body.appendChild(reverbContainer);
+
+      // Toggle reverb on click.  When active, switch the image and set
+      // homeReverbActive true; when inactive, revert to the clean image and
+      // set homeReverbActive false.  The reverb effect is applied in
+      // play808() by inserting a Convolver node when homeReverbActive is true.
+      reverbKnob.addEventListener('click', () => {
+        homeReverbActive = !homeReverbActive;
+        if (homeReverbActive) {
+          reverbImg.src = 'knob-distorted.png';
+        } else {
+          reverbImg.src = 'knob-clean.png';
+        }
+      });
+
+      // ===== POSITIONING FUNCTIONS =====
+      // Position the overdrive knob relative to the equalizer.  It is
+      // centered vertically and sits to the left of the equalizer with
+      // additional offset.  Increasing the padding value moves the knob
+      // further left.  A padding of 50px is used to shift it slightly
+      // more left than before.
       function positionKnob() {
         const eqElem = document.getElementById('eq');
         const knobElem = document.getElementById('color-knob-container');
         if (!eqElem || !knobElem) return;
         const eqRect = eqElem.getBoundingClientRect();
         const knobRect = knobElem.getBoundingClientRect();
-        // Center vertically relative to the equalizer
         const top = eqRect.top + eqRect.height / 2 - knobRect.height / 2;
-        // Position the knob to the left of the equalizer with some padding
-        const left = eqRect.left - knobRect.width - 30;
+        // Increase the horizontal offset so the knob and label sit further
+        // left of the equalizer.  A value of 80px yields a more balanced
+        // separation between the knob and the bars.
+        const left = eqRect.left - knobRect.width - 80;
         knobElem.style.position = 'fixed';
         knobElem.style.top = `${top}px`;
         knobElem.style.left = `${left}px`;
       }
-      // Initially position the knob after the DOM has rendered
-      requestAnimationFrame(positionKnob);
+
+      // Position the reverb knob on the right side of the equalizer.  It is
+      // centered vertically relative to the equalizer and offset by 50px
+      // to the right.  This function is called together with positionKnob
+      // to keep both knobs aligned when the viewport changes.
+      function positionReverbKnob() {
+        const eqElem = document.getElementById('eq');
+        const knobElem = document.getElementById('reverb-knob-container');
+        if (!eqElem || !knobElem) return;
+        const eqRect = eqElem.getBoundingClientRect();
+        const knobRect = knobElem.getBoundingClientRect();
+        const top = eqRect.top + eqRect.height / 2 - knobRect.height / 2;
+        // Likewise increase the offset for the reverb knob on the right to
+        // maintain symmetry with the overdrive knob.  Using 80px here
+        // positions it further to the right of the equalizer.
+        const left = eqRect.right + 80;
+        knobElem.style.position = 'fixed';
+        knobElem.style.top = `${top}px`;
+        knobElem.style.left = `${left}px`;
+      }
+
+      // Initially position both knobs after the DOM has rendered
+      requestAnimationFrame(() => {
+        positionKnob();
+        positionReverbKnob();
+      });
       // Reposition on window resize
       window.addEventListener('resize', () => {
-        requestAnimationFrame(positionKnob);
+        requestAnimationFrame(() => {
+          positionKnob();
+          positionReverbKnob();
+        });
       });
     });
   </script>
