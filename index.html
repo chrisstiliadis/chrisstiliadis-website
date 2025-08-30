@@ -62,47 +62,26 @@
       margin-bottom: 4px;
     }
     #color-knob {
-      width: 60px;
-      height: 60px;
+      width: 75px;
+      height: 75px;
       border-radius: 50%;
-      /* Use a radial gradient to give the knob a more organic, lo‑fi look.  The
-         gradient is darker toward the edges and lighter near the top left to
-         mimic a worn tactile dial. */
-      background: radial-gradient(circle at 30% 30%, #555 0%, #333 70%, #222 100%);
-      /* Slightly darker border for a vintage feel */
-      border: 4px solid #111;
-      /* Softer inner shadows to avoid the pristine glossy look */
-      box-shadow: inset -3px -3px 5px rgba(0,0,0,0.5), inset 3px 3px 5px rgba(255,255,255,0.08);
+      /* Remove gradient and shadows since the knob graphic provides the visual styling */
+      background: none;
       cursor: pointer;
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: transform 0.1s linear;
-    }
-    /* small marker inside the knob that rotates with the knob */
-    #color-knob .marker {
-      width: 4px;
-      height: 20px;
-      background: #ddd;
-      border-radius: 2px;
-      position: absolute;
-      top: 6px;
-      left: calc(50% - 2px);
+      overflow: hidden;
     }
 
-    /* Add a subtle noise overlay to the knob to enhance its lo‑fi, organic feel.  The
-       SVG fractal noise texture is repeated across the knob surface and blended
-       using multiply mode. */
-    #color-knob::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140" viewBox="0 0 140 140"><filter id="n3"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="1" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n3)" opacity="0.15"/></svg>') repeat;
-      mix-blend-mode: multiply;
-      opacity: 0.3;
+    /* The knob graphic itself.  Ensure the image fills the knob container and maintains aspect ratio. */
+    #color-knob img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
       pointer-events: none;
+      user-select: none;
     }
 
     /* Text distortion animation triggered when overdrive is active.  When the
@@ -304,41 +283,35 @@
     document.addEventListener('DOMContentLoaded', () => {
       const knobContainer = document.createElement('div');
       knobContainer.id = 'color-knob-container';
+      // Label for the knob
       const knobLabel = document.createElement('div');
       knobLabel.className = 'knob-label';
       knobLabel.textContent = 'overdrive';
+      // Create the clickable knob container
       const knob = document.createElement('div');
       knob.id = 'color-knob';
-      // Insert a marker to show rotation direction
-      const marker = document.createElement('div');
-      marker.className = 'marker';
-      knob.appendChild(marker);
+      // Create an image element to display the knob graphic.  The clean state
+      // uses the "knob-clean.png" graphic and the distorted state uses
+      // "knob-distorted.png".
+      const knobImg = document.createElement('img');
+      knobImg.id = 'color-knob-img';
+      knobImg.src = 'knob-clean.png';
+      knob.appendChild(knobImg);
       knobContainer.appendChild(knobLabel);
       knobContainer.appendChild(knob);
       document.body.appendChild(knobContainer);
-      // knobActive is defined in the outer scope and tracks whether the
-      // overdrive is engaged.  Clicking the knob will toggle this flag and
-      // rotate the knob accordingly.
-      function updateKnob(angle) {
-        // limit rotation to 0..300 degrees so the knob doesn't wrap
-        const limited = Math.max(0, Math.min(300, angle));
-        knob.style.transform = `rotate(${limited}deg)`;
-        // Normalize 0..300 to 0..1 and map to a much wider range (1..201) for
-        // considerably stronger distortion.  Increasing the range here means
-        // the distortion curve scales more aggressively as the knob is turned.
-        const normalized = limited / 300;
-        homeDistortionAmt = 1 + normalized * 200;
-      }
-      knob.addEventListener('pointerdown', (e) => {
-        // Toggle the knob state.  When active, rotate to 300° and set the
-        // distortion amount accordingly; when inactive, rotate back to 0°.
+      // Toggle the overdrive on click.  When active, switch the image and
+      // drastically increase the distortion amount; when inactive, revert to
+      // the clean image and reset the distortion to 1.
+      knob.addEventListener('click', () => {
         knobActive = !knobActive;
-        const targetAngle = knobActive ? 300 : 0;
-        updateKnob(targetAngle);
-        knob.setPointerCapture(e.pointerId);
-      });
-      knob.addEventListener('pointerup', (e) => {
-        knob.releasePointerCapture(e.pointerId);
+        if (knobActive) {
+          knobImg.src = 'knob-distorted.png';
+          homeDistortionAmt = 200; // high distortion when engaged
+        } else {
+          knobImg.src = 'knob-clean.png';
+          homeDistortionAmt = 1; // clean tone when disengaged
+        }
       });
 
       // Position the knob so that it sits centered vertically relative to the
